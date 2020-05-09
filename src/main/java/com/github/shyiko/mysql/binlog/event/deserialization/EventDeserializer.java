@@ -30,12 +30,18 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
+ * 事件解析器
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class EventDeserializer {
 
+    /** 头部信息解析器*/
     private final EventHeaderDeserializer eventHeaderDeserializer;
+
+    /** 数据解析器*/
     private final EventDataDeserializer defaultEventDataDeserializer;
+
+    /** 事件类型-事件信息解析器键值对*/
     private final Map<EventType, EventDataDeserializer> eventDataDeserializers;
 
     private EnumSet<CompatibilityMode> compatibilitySet = EnumSet.noneOf(CompatibilityMode.class);
@@ -46,6 +52,9 @@ public class EventDeserializer {
     private EventDataDeserializer tableMapEventDataDeserializer;
     private EventDataDeserializer formatDescEventDataDeserializer;
 
+    /**
+     * 构造方法 默认使用V4格式
+     */
     public EventDeserializer() {
         this(new EventHeaderV4Deserializer(), new NullEventDataDeserializer());
     }
@@ -203,6 +212,7 @@ public class EventDeserializer {
     }
 
     /**
+     * 获取下一个事件信息
      * @return deserialized event or null in case of end-of-stream
      */
     public Event nextEvent(ByteArrayInputStream inputStream) throws IOException {
@@ -225,6 +235,14 @@ public class EventDeserializer {
         return new Event(eventHeader, eventData);
     }
 
+    /**
+     * 解析文件描述信息
+     * 在5.0版本后，在每个文件的开始写入，用于替代'START_EVENT_V3'类型
+     * @param inputStream   输入流
+     * @param eventHeader   事件头部信息
+     * @return              事件数据
+     * @throws EventDataDeserializationException
+     */
     private EventData deserializeFormatDescriptionEventData(ByteArrayInputStream inputStream, EventHeader eventHeader)
             throws EventDataDeserializationException {
         EventDataDeserializer eventDataDeserializer =
@@ -263,6 +281,13 @@ public class EventDeserializer {
         return eventData;
     }
 
+    /**
+     * 表信息解析
+     * @param inputStream 输入流
+     * @param eventHeader 事件头部信息
+     * @return            事件数据
+     * @throws IOException
+     */
     public EventData deserializeTableMapEventData(ByteArrayInputStream inputStream, EventHeader eventHeader)
             throws IOException {
         EventDataDeserializer eventDataDeserializer =

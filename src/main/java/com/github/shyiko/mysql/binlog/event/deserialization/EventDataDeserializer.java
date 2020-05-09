@@ -21,10 +21,17 @@ import com.github.shyiko.mysql.binlog.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
+ * 事件数据信息
  * @param <T> event data this deserializer is responsible for
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public interface EventDataDeserializer<T extends EventData> {
 
+    /**
+     * 解析数据
+     * @param inputStream 输入流
+     * @return 数据包装
+     * @throws IOException
+     */
     T deserialize(ByteArrayInputStream inputStream) throws IOException;
 }

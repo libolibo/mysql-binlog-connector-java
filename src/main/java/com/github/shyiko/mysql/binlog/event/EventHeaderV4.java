@@ -16,18 +16,30 @@
 package com.github.shyiko.mysql.binlog.event;
 
 /**
+ * MySQL 日志V4版的头部信息
  * Used in MySQL 5.0+.
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class EventHeaderV4 implements EventHeader {
 
     // v1 (MySQL 3.23)
+    /** 时间戳*/
     private long timestamp;
+
+    /** 事件类型*/
     private EventType eventType;
+
+    /** 服务ID*/
     private long serverId;
+
+    /** 事件总长度*/
     private long eventLength;
+
     // v3 (MySQL 4.0.2-4.1)
+    /** 下一个事件的坐标*/
     private long nextPosition;
+
+    /** 标记*/
     private int flags;
 
     @Override
@@ -39,8 +51,7 @@ public class EventHeaderV4 implements EventHeader {
         this.timestamp = timestamp;
     }
 
-    @Override
-    public EventType getEventType() {
+    @Override public EventType getEventType() {
         return eventType;
     }
 

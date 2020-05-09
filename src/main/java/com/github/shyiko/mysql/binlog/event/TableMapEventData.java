@@ -18,12 +18,18 @@ package com.github.shyiko.mysql.binlog.event;
 import java.util.BitSet;
 
 /**
+ * 表信息
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class TableMapEventData implements EventData {
 
+    /** 表ID*/
     private long tableId;
+
+    /** 数据库名称*/
     private String database;
+
+    /** 表名称*/
     private String table;
     private byte[] columnTypes;
     private int[] columnMetadata;

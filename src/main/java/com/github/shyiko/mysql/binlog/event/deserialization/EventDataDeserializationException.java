@@ -20,14 +20,16 @@ import com.github.shyiko.mysql.binlog.event.EventHeader;
 import java.io.IOException;
 
 /**
+ * 事件数据解析异常
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class EventDataDeserializationException extends IOException {
 
+    /** 事件头部*/
     private EventHeader eventHeader;
 
     public EventDataDeserializationException(EventHeader eventHeader, Throwable cause) {
-        super("Failed to deserialize data of " + eventHeader, cause);
+        super("解析数据失败: " + eventHeader, cause);
         this.eventHeader = eventHeader;
     }
 

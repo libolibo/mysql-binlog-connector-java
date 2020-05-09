@@ -22,12 +22,20 @@ import com.github.shyiko.mysql.binlog.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
+ * MySQL二进制日志 V4格式 头部信息处理器
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class EventHeaderV4Deserializer implements EventHeaderDeserializer<EventHeaderV4> {
 
+    /** 事件类型集合*/
     private static final EventType[] EVENT_TYPES = EventType.values();
 
+    /**
+     * 解析头部信息
+     * @param inputStream 输入流
+     * @return            V4格式 头部包装类
+     * @throws IOException
+     */
     @Override
     public EventHeaderV4 deserialize(ByteArrayInputStream inputStream) throws IOException {
         EventHeaderV4 header = new EventHeaderV4();
@@ -40,9 +48,15 @@ public class EventHeaderV4Deserializer implements EventHeaderDeserializer<EventH
         return header;
     }
 
-    private static EventType getEventType(int ordinal) throws IOException {
+    /**
+     * 获取对应的事件类型信息
+     * @param ordinal 在集合中的位置
+     * @return        事件类型信息
+     * @throws IOException
+     */
+    private EventType getEventType(int ordinal) throws IOException {
         if (ordinal >= EVENT_TYPES.length) {
-            throw new IOException("Unknown event type " + ordinal);
+            throw new IOException("未知的事件类型, ordinal:" + ordinal);
         }
         return EVENT_TYPES[ordinal];
     }

@@ -21,46 +21,63 @@ import java.io.InputStream;
 import java.util.BitSet;
 
 /**
+ * 二进制字节流包装类
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class ByteArrayInputStream extends InputStream {
 
+    /** 内部输入流*/
     private InputStream inputStream;
+
     private Integer peek;
+
+    /** 事件剩余读取字节数*/
     private int blockLength = -1;
 
+    /**
+     * 构造方法 设置字节输入流
+     * @param inputStream 字节输入流
+     */
     public ByteArrayInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
+    /**
+     * 构造方法 设置缓冲数组
+     * @param bytes 缓冲数组
+     */
     public ByteArrayInputStream(byte[] bytes) {
         this(new java.io.ByteArrayInputStream(bytes));
     }
 
     /**
      * Read int written in little-endian format.
+     * 读取多字节数字
+     * 例如: 0x7a 0xf7 0x93 0x5e 四个字节合并为 1586755450
      */
     public int readInteger(int length) throws IOException {
         int result = 0;
         for (int i = 0; i < length; ++i) {
-            result |= (this.read() << (i << 3));
+            result |= (this.read() << (i << 3)); // 向左位移1000与向左位移8(1000 % 32)等效
         }
         return result;
     }
 
     /**
      * Read long written in little-endian format.
+     * 读取多字节数字
      */
     public long readLong(int length) throws IOException {
         long result = 0;
         for (int i = 0; i < length; ++i) {
-            result |= (((long) this.read()) << (i << 3));
+            result |= (((long) this.read()) << (i << 3));// 向左位移1000与向左位移8(1000 % 64)等效
         }
         return result;
     }
 
     /**
      * Read fixed length string.
+     * 读取多字节字符串
      */
     public String readString(int length) throws IOException {
         return new String(read(length));
@@ -75,6 +92,7 @@ public class ByteArrayInputStream extends InputStream {
 
     /**
      * Read variable-length string. End is indicated by 0x00 byte.
+     * 长度不固定的字符串，读取直到0为止
      */
     public String readZeroTerminatedString() throws IOException {
         ByteArrayOutputStream s = new ByteArrayOutputStream();
@@ -84,12 +102,25 @@ public class ByteArrayInputStream extends InputStream {
         return new String(s.toByteArray());
     }
 
+    /**
+     * 读取指定长度的字节
+     * @param length    字节数组长度
+     * @return          字节数组
+     * @throws IOException
+     */
     public byte[] read(int length) throws IOException {
         byte[] bytes = new byte[length];
         fill(bytes, 0, length);
         return bytes;
     }
 
+    /**
+     * 填充数据
+     * @param bytes     被填充的字节数组
+     * @param offset    数组偏移量
+     * @param length    读取长度
+     * @throws IOException
+     */
     public void fill(byte[] bytes, int offset, int length) throws IOException {
         int remaining = length;
         while (remaining != 0) {
@@ -125,15 +156,16 @@ public class ByteArrayInputStream extends InputStream {
     }
 
     /**
+     * 读取 可变字长数字(Length-Encoded Integer Type)
      * @see #readPackedNumber()
      */
     public int readPackedInteger() throws IOException {
         Number number = readPackedNumber();
         if (number == null) {
-            throw new IOException("Unexpected NULL where int should have been");
+            throw new IOException("读取的数字为空");
         }
         if (number.longValue() > Integer.MAX_VALUE) {
-            throw new IOException("Stumbled upon long even though int expected");
+            throw new IOException("数字超过最大值 " + Integer.MAX_VALUE);
         }
         return number.intValue();
     }
@@ -180,9 +212,11 @@ public class ByteArrayInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         int result;
+
         if (peek == null) {
             result = readWithinBlockBoundaries();
         } else {
+            // 调用peek方法，已经读取第一个字节。直接返回数据即可
             result = peek;
             peek = null;
         }
@@ -207,10 +241,18 @@ public class ByteArrayInputStream extends InputStream {
         inputStream.close();
     }
 
+    /**
+     * 设置 数据信息长度 (总长度 - 头部长度)
+     * @param length 数据信息长度
+     */
     public void enterBlock(int length) {
         this.blockLength = length < -1 ? -1 : length;
     }
 
+    /**
+     * 跳过事件信息尾部多余的字节
+     * @throws IOException
+     */
     public void skipToTheEndOfTheBlock() throws IOException {
         if (blockLength != -1) {
             skip(blockLength);

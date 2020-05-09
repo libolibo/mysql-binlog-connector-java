@@ -18,6 +18,7 @@ package com.github.shyiko.mysql.binlog.event;
 import com.github.shyiko.mysql.binlog.event.deserialization.ChecksumType;
 
 /**
+ * 描述信息数据
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class FormatDescriptionEventData implements EventData {

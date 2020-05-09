@@ -22,6 +22,7 @@ import com.github.shyiko.mysql.binlog.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
+ * 表信息事件解析器
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class TableMapEventDataDeserializer implements EventDataDeserializer<TableMapEventData> {
@@ -32,9 +33,9 @@ public class TableMapEventDataDeserializer implements EventDataDeserializer<Tabl
     public TableMapEventData deserialize(ByteArrayInputStream inputStream) throws IOException {
         TableMapEventData eventData = new TableMapEventData();
         eventData.setTableId(inputStream.readLong(6));
-        inputStream.skip(3); // 2 bytes reserved for future use + 1 for the length of database name
+        inputStream.skip(3); // 2 bytes reserved for future use + 1 for the length of database name; flags (2) + schema_name_length (1)
         eventData.setDatabase(inputStream.readZeroTerminatedString());
-        inputStream.skip(1); // table name
+        inputStream.skip(1); // table name length
         eventData.setTable(inputStream.readZeroTerminatedString());
         int numberOfColumns = inputStream.readPackedInteger();
         eventData.setColumnTypes(inputStream.read(numberOfColumns));

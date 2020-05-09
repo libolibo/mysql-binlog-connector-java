@@ -18,6 +18,7 @@ package com.github.shyiko.mysql.binlog.event;
 import java.io.Serializable;
 
 /**
+ * 事件数据 接口
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public interface EventData extends Serializable {

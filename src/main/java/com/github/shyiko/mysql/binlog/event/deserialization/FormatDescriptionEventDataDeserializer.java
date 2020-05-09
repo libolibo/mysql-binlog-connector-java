@@ -22,21 +22,29 @@ import com.github.shyiko.mysql.binlog.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
+ * 描述信息数据解析器
  * @see <a href="https://dev.mysql.com/doc/internals/en/format-description-event.html">FORMAT_DESCRIPTION_EVENT</a>
  * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
  */
 public class FormatDescriptionEventDataDeserializer implements EventDataDeserializer<FormatDescriptionEventData> {
 
+    /**
+     * 解析数据
+     * @param inputStream 输入流
+     * @return            数据包装
+     * @throws IOException
+     */
     @Override
     public FormatDescriptionEventData deserialize(ByteArrayInputStream inputStream) throws IOException {
         int eventBodyLength = inputStream.available();
         FormatDescriptionEventData eventData = new FormatDescriptionEventData();
         eventData.setBinlogVersion(inputStream.readInteger(2));
         eventData.setServerVersion(inputStream.readString(50).trim());
-        inputStream.skip(4); // redundant, present in a header
+        inputStream.skip(4); // 多余的数据，时间戳可以在事件头部获取
         eventData.setHeaderLength(inputStream.readInteger(1));
-        inputStream.skip(EventType.FORMAT_DESCRIPTION.ordinal() - 1);
+        inputStream.skip(EventType.FORMAT_DESCRIPTION.ordinal() - 1); //字节长度 = (事件类型枚举下标 - 1)
         eventData.setDataLength(inputStream.readInteger(1));
+
         int checksumBlockLength = eventBodyLength - eventData.getDataLength();
         ChecksumType checksumType = ChecksumType.NONE;
         if (checksumBlockLength > 0) {
